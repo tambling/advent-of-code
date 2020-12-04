@@ -1,10 +1,8 @@
-require_relative "../aoc_helper"
+# frozen_string_literal: true
 
-test_fixture = <<~FIXTURE
-  1-3 a: abcde
-  1-3 b: cdefg
-  2-9 c: ccccccccc
-FIXTURE
+require_relative "../../helper"
+
+setup_inputs(__FILE__)
 
 PASSWORD_ROW_REGEX = /(\d+)-(\d+) ([a-z]): ([a-z]+)/.freeze
 
@@ -26,7 +24,5 @@ def new_valid_passwords_count(password_rows)
   end
 end
 
-assert_equal(old_valid_passwords_count(inputs(test_fixture)), 2)
-assert_equal(new_valid_passwords_count(inputs(test_fixture)), 1)
-
-present_answer(new_valid_passwords_count(inputs))
+SimpleTest.assert_equal(old_valid_passwords_count(test_input), 2)
+SimpleTest.assert_equal(new_valid_passwords_count(test_input), 1)
