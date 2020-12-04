@@ -23,12 +23,24 @@ def day_directory
   File.dirname(@file)
 end
 
-def test_input
-  File.read(File.join(day_directory, "/test_input.txt")).split("\n")
+def test_input(raw: false)
+  raw_contents = File.read(File.join(day_directory, "/test_input.txt"))
+
+  if raw
+    raw_contents
+  else
+    raw_contents.split("\n")
+  end
 end
 
-def input
-  File.read(File.join(day_directory, "./input.txt")).split("\n")
+def input(raw: false)
+  raw_contents = File.read(File.join(day_directory, "./input.txt"))
+
+  if raw
+    raw_contents
+  else
+    raw_contents.split("\n")
+  end
 end
 
 def present_answer(answer)
