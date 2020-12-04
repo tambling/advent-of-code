@@ -1,25 +1,25 @@
-require 'test/unit'
-require 'byebug'
-
-include Test::Unit::Assertions
-
-def inputs
-  file = File.read(ARGV[0])
-  lines = file.split("\n")
-
-  return lines
-end
-
-def present_answer(answer)
-  puts "The answer is #{answer}"
-end
+# frozen_string_literal: true
 
 class IntcodeEvaluator
   attr_reader :sequence, :outputs, :opcode
   attr_accessor :inputs
+
+  OPCODES = [
+    :advance!,
+    :add!,
+    :multiply!,
+    :input!,
+    :output!,
+    :jump_if_true!,
+    :jump_if_false!,
+    :less_than!,
+    :equals!,
+    :adjust_relative_base!
+  ]
+
   def initialize(sequence, inputs = [])
     @sequence = sequence.clone
-    @inputs = inputs 
+    @inputs = inputs
     @outputs = []
     @pointer = 0
     @opcode = nil
@@ -28,54 +28,29 @@ class IntcodeEvaluator
   end
 
   def evaluate
-    while evaluating?
-      evaluate_next
-    end
+    evaluate_next while evaluating?
 
     self
   end
 
   def evaluate_to_output
-    while evaluating? && !output?
-      evaluate_next
-    end
+    evaluate_next while evaluating? && !output?
 
     evaluate_next
   end
 
-  def evaluate_to_outputs(n)
-    while evaluating? && @outputs.length < n
-      evaluate_next
-    end
+  def evaluate_to_outputs(outputs_count)
+    evaluate_next while evaluating? && @outputs.length < outputs_count
   end
 
   def evaluate_next
     parse_instruction
 
-    if add?
-      add!
-    elsif multiply?
-      multiply!
-    elsif input?
-      input!
-    elsif output?
-      output!
-    elsif jump_if_true?
-      jump_if_true!
-    elsif jump_if_false?
-      jump_if_false!
-    elsif less_than?
-      less_than!
-    elsif equals?
-      equals!
-    elsif adjust_relative_base?
-      adjust_relative_base!
-    else
-      advance!
-    end
+    command = OPCODES[@opcode]
+    send(command || :advance!)
   end
-  
-  def add_input input
+
+  def add_input(input)
     @inputs.push input
   end
 
@@ -90,7 +65,7 @@ class IntcodeEvaluator
     @opcode = instruction.pop(2).join.to_i
 
     @modes = []
-    while flag = instruction.pop
+    while (flag = instruction.pop)
 
       mode = case flag.to_i
              when 0
@@ -99,17 +74,11 @@ class IntcodeEvaluator
                :immediate
              when 2
                :relative
-             end 
+             end
       @modes.push(mode)
     end
 
-    while @modes.length < 3
-      @modes.push :position
-    end
-  end
-
-  def add?
-    @opcode == 1
+    @modes.push :position while @modes.length < 3
   end
 
   def add!
@@ -120,10 +89,6 @@ class IntcodeEvaluator
     @pointer += 4
   end
 
-  def multiply?
-    @opcode == 2
-  end
-
   def multiply!
     input1, input2 = values
 
@@ -132,30 +97,18 @@ class IntcodeEvaluator
     @pointer += 4
   end
 
-  def input?
-    @opcode == 3
-  end
-
   def input!
-              input = @inputs.shift
+    input = @inputs.shift
 
     set_at(@pointer + 1, @modes.first, input)
 
     @pointer += 2
   end
 
-  def output?
-    @opcode == 4
-  end
-
   def output!
     @outputs.push(get_at(@pointer + 1, @modes.first))
 
     @pointer += 2
-  end
-
-  def jump_if_true?
-    @opcode == 5
   end
 
   def jump_if_true!
@@ -166,20 +119,12 @@ class IntcodeEvaluator
     end
   end
 
-  def jump_if_false?
-    @opcode == 6
-  end
-
   def jump_if_false!
     if values.first == 0
       @pointer = values.last
     else 
       @pointer += 3
     end
-  end
-
-  def less_than?
-    @opcode == 7
   end
 
   def less_than!
@@ -192,10 +137,6 @@ class IntcodeEvaluator
     @pointer += 4
   end
 
-  def equals?
-    @opcode == 8
-  end
-
   def equals!
     input1, input2 = values
 
@@ -204,10 +145,6 @@ class IntcodeEvaluator
     set_at(@pointer + 3, @modes.last, value)
 
     @pointer += 4
-  end
-
-  def adjust_relative_base?
-    @opcode == 9
   end
 
   def adjust_relative_base!
