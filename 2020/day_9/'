@@ -1,0 +1,15 @@
+# frozen_string_literal: true
+
+require_relative "../../helper"
+
+setup_inputs(__FILE__)
+
+def first_nonconforming_number(sequence, preamble_length: 25)
+  (preamble_length..sequence.length).each do |i|
+    return sequence[i] unless sequence[i - preamble_length..i].combination(2).any? { |combo| combo.first + combo.last == sequence[i] }
+  end
+
+end
+
+SimpleTest.assert_equal(127, first_nonconforming_number(test_input.map(&:to_i), preamble_length: 5))
+present_answer(first_nonconforming_number(input.map(&:to_i)))

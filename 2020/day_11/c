@@ -1,0 +1,31 @@
+# frozen_string_literal: true
+
+require_relative "../../helper"
+
+setup_inputs(__FILE__)
+
+def stable_arrangement(initial_arrangement)
+  previous_arrangement = initial_arrangement
+  byebug
+end
+
+def parse_arrangement(arrangement)
+  arrangement.split("\n").map { |row| row.split("") }
+end
+
+def all_neighbors(arrangement, x, y)
+  neighbors = []
+
+  neighbors.push(arrangement[y - 1][x - 1]) if y.positive? && x.positive?
+  neighbors.push(arrangement[y - 1][x]) if y.positive?
+  neighbors.push(arrangement[y - 1][x + 1]) if y.positive? && x + 1 < arrangement.first.length
+  neighbors.push(arrangement[y][x - 1]) if x.positive?
+  neighbors.push(arrangement[y][x + 1]) if x + 1 < arrangement.first.length
+  neighbors.push(arrangement[y + 1][x - 1]) if y + 1 < arrangement.length && x.positive?
+  neighbors.push(arrangement[y + 1][x]) if y + 1 < arrangement.length
+  neighbors.push(arrangement[y + 1][x + 1]) if y + 1 < arrangement.length && x + 1 < arrangement.first.length
+
+  neighbors
+end
+
+SimpleTest.assert(stable_arrangement(raw_test_input))
